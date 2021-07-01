@@ -48,3 +48,11 @@ nodes:
     header:
       Content-Type: "application/json"
       Authorization: "login::access"
+
+  - name: "get_push_messages_for_vendor"
+    path: "/push/?vendor=1"
+    method: "GET"
+    returns_array: true
+    header:
+      Content-Type: "application/json"
+      Authorization: "login::access"

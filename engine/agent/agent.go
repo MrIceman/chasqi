@@ -76,30 +76,26 @@ func (a *Agent) sendDebugMessage(mesage string) {
 func (a *Agent) Start() {
 	a.sendDebugMessage("starting")
 	currentRoute := &a.rootRoute
-	i := 0
-	for i < 100 {
-		for currentRoute != nil {
-			a.sendDebugMessage("Calling route " + currentRoute.name)
-			resp := a.callRoute(currentRoute)
-			// See if we have to cache any values
-			bytes, err := ioutil.ReadAll(resp.Body)
-			if err != nil {
-				panic(err)
-			}
-			a.processResponse(bytes, currentRoute)
-
-			currentRoute = currentRoute.next
-
-			_ = resp.Body.Close()
-			time.Sleep(2 * time.Second)
+	for currentRoute != nil {
+		a.sendDebugMessage("Calling route " + currentRoute.name)
+		resp := a.callRoute(currentRoute)
+		// See if we have to cache any values
+		bytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			panic(err)
 		}
-		i += 1
+		a.processResponse(bytes, currentRoute)
+
+		currentRoute = currentRoute.next
+
+		_ = resp.Body.Close()
+		time.Sleep(2 * time.Second)
 	}
 
 }
 
 func (a *Agent) processResponse(data []byte, r *Route) {
-	if r.returnsArray {
+	if !r.returnsArray {
 		a.processSingleValueResponse(data, r)
 	} else {
 		a.processMultiValueResponse(data, r)
@@ -116,7 +112,6 @@ func (a *Agent) processSingleValueResponse(data []byte, r *Route) {
 
 	for route, exposeValues := range a.exposedResponses {
 		// check if the current route is within our expose map
-		a.sendDebugMessage("Exposing " + fmt.Sprintln(exposeValues))
 		if route == r.name {
 			for key, _ := range exposeValues {
 				value := resultBody[key]
@@ -151,8 +146,6 @@ func (a *Agent) callRoute(route *Route) *http.Response {
 		if err != nil {
 			panic(err)
 		}
-		a.sendDebugMessage("Calling " + route.path + " " + route.method + " " + fmt.Sprint(bodyMap))
-		a.sendDebugMessage("headerMap: " + fmt.Sprint(headerMap))
 		req = a.makePostOrPutRequest(
 			method,
 			route,
@@ -160,8 +153,6 @@ func (a *Agent) callRoute(route *Route) *http.Response {
 			bodyMap)
 	}
 	if method == GET || method == DELETE {
-		a.sendDebugMessage("Calling " + route.path + " " + route.method)
-		a.sendDebugMessage("headerMap: " + fmt.Sprint(headerMap))
 		req = a.makeGetOrDeleteRequest(
 			method,
 			route,

@@ -28,6 +28,7 @@ func nodesToRoute(n []rules.Node) *Route {
 			route.body = item.RequestBody
 			route.previous = precedentRoute
 			precedentRoute.next = &route
+			route.returnsArray = item.ReturnsArray
 		}
 	}
 

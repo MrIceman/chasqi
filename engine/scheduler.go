@@ -3,8 +3,6 @@ package engine
 import (
 	"chasqi/engine/agent"
 	"chasqi/rules"
-	"strconv"
-	"time"
 )
 
 type Scheduler struct {
@@ -23,16 +21,8 @@ func NewScheduler(tree *rules.NavigationTree) *Scheduler {
 }
 
 func (s *Scheduler) Start() {
-	i := 0
-
-	for _, a := range s.agents {
-		println("Spawning " + strconv.Itoa(a.Identifier()))
-		go func() {
-			time.Sleep(3 * time.Second)
-			a.Start()
-		}()
-		i++
-	}
+	// TODO iterate through scheduler and start all agents
+	go s.agents[0].Start()
 }
 
 /**
@@ -50,7 +40,6 @@ func (s *Scheduler) Schedule(
 			debugChannel,
 			i,
 		)
-		println(strconv.Itoa(a.Identifier()))
 		agentList[i] = *a
 	}
 	s.agents = agentList
