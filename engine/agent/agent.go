@@ -69,7 +69,7 @@ func (a *Agent) Init(tree rules.NavigationTree,
 }
 
 func (a *Agent) sendDebugMessage(mesage string) {
-	a.debugChannel <- "{" + strconv.Itoa(a.identifier) + "}" + mesage
+	a.debugChannel <- "{" + strconv.Itoa(a.identifier) + "} " + mesage
 }
 
 // The agent starts his route
@@ -77,7 +77,6 @@ func (a *Agent) Start() {
 	a.sendDebugMessage("starting")
 	currentRoute := &a.rootRoute
 	for currentRoute != nil {
-		a.sendDebugMessage("Calling route " + currentRoute.name)
 		resp := a.callRoute(currentRoute)
 		// See if we have to cache any values
 		bytes, err := ioutil.ReadAll(resp.Body)
@@ -89,7 +88,6 @@ func (a *Agent) Start() {
 		currentRoute = currentRoute.next
 
 		_ = resp.Body.Close()
-		time.Sleep(2 * time.Second)
 	}
 
 }
@@ -128,7 +126,6 @@ func (a *Agent) processSingleValueResponse(data []byte, r *Route) {
 func (a *Agent) processMultiValueResponse(data []byte, r *Route) {
 	var resultBody []map[string]interface{}
 	err := json.Unmarshal(data, &resultBody)
-	a.sendDebugMessage("Response: " + string(data))
 	if err != nil {
 		panic(err)
 	}
@@ -159,12 +156,15 @@ func (a *Agent) callRoute(route *Route) *http.Response {
 			headerMap)
 	}
 
+	startTime := time.Now()
 	response, err := a.client.Do(req)
+	endTime := time.Now()
 	if err != nil {
 		panic(err)
 	}
-	// TODO extract response body if route wants to expose fields
-	a.sendDebugMessage("Received " + strconv.Itoa(response.StatusCode) + " - " + route.method + " " + route.name)
+	a.sendDebugMessage(strconv.Itoa(response.StatusCode) +
+		" - " + route.method + " " + route.name + "  / " +
+		strconv.Itoa(int(endTime.Sub(startTime).Milliseconds())) + " ms")
 
 	return response
 }

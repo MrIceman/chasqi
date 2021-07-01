@@ -39,10 +39,8 @@ func (a *Agent) extractBody(route *Route) (map[string]interface{}, error) {
 			// TODO handle exceptions
 			isVariable := values[0] == "variables"
 			if isVariable {
-				a.sendDebugMessage("Adding variable")
 				resultMap[k] = a.inputValues[values[1]]
 			} else {
-				a.sendDebugMessage(" No variable")
 				// output from previous response
 				exposedValue := a.exposedResponses[values[0]][values[1]]
 				// todo handle error if exposedValue is noll

@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"net/http"
 )
 
@@ -40,7 +39,6 @@ func (a *Agent) makePostOrPutRequest(
 		panic(errors.New("Method must be PUT or POST and not " + method))
 	}
 	body, err := json.Marshal(requestBody)
-	a.sendDebugMessage("response body: " + fmt.Sprintln(string(body)))
 	if err != nil {
 		panic(err)
 	}
