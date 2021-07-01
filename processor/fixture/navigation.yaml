@@ -1,0 +1,50 @@
+host: "http://www.loremio.com"
+agents: 10
+variables:
+  - name: "email"
+    value: "u0@u.de"
+    dt: "str"
+  - name: "password"
+    value: "u"
+    dt: "str"
+  - name: "role"
+    value: 2
+    dt: "int"
+
+nodes:
+  - name: "create_account"
+    path: "/profile/"
+    method: "POST"
+    body:
+      email: "variables::email"
+      password: "variables::password"
+      role: "variables::role"
+    header:
+      Content-Type: "application/json"
+
+  - name: "login"
+    path: "/token/"
+    method: "POST"
+    body:
+      email: "variables::email"
+      password: "variables::password"
+    exposes:
+      - "access"
+      - "refresh"
+    header:
+      Content-Type: "application/json"
+
+  - name: "get_profile"
+    path: "/profile/"
+    method: "GET"
+    header:
+      Content-Type: "application/json"
+      Authorization: "login::access"
+
+  - name: "get_subscription"
+    path: "/subscription/"
+    method: "GET"
+    returns_array: true
+    header:
+      Content-Type: "application/json"
+      Authorization: "login::access"
