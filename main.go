@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	tree := processor.GetNavigationTree("./processor/fixture/navigation.yaml")
+	tree := processor.GetNavigationTree("./demo.yaml")
 
 	scheduler := engine.NewScheduler(tree)
 	debugChan := make(chan string)
