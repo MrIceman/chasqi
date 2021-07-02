@@ -6,7 +6,7 @@ import (
 )
 
 func TestGetNavigationTree(t *testing.T) {
-	filePath := "./fixture/navigation.yaml"
+	filePath := "./fixture/test_nav.yaml"
 
 	tree := GetNavigationTree(filePath)
 	if tree.Host != "http://www.loremio.com" {
@@ -40,6 +40,28 @@ func TestGetNavigationTree(t *testing.T) {
 		} else {
 			if v.ReturnsArray != false {
 				t.Error("Returns array for " + v.Name + " is not false")
+			}
+		}
+	}
+}
+
+func TestShouldSetRandomValuesForEmailAndPassword(t *testing.T) {
+	filePath := "./fixture/test_nav.yaml"
+
+	tree := GetNavigationTree(filePath)
+
+	for _, v := range tree.Variables {
+		if v.Name == "email" {
+			println(v.Value)
+			// 6 random chars + "@" + 8 random chars + ".de" == 18 chars
+			if len(v.Value) != 18 {
+				t.Error("Email doesn't have 18 chars")
+			}
+		}
+		if v.Name == "password" {
+			println(v.Value)
+			if len(v.Value) != 8 {
+				t.Error("Password doesn't have 8 chars")
 			}
 		}
 	}

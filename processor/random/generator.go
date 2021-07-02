@@ -5,7 +5,10 @@ import (
 	"time"
 )
 
-func GenerateRandomString(length int) string {
+type Generator struct {
+}
+
+func (g Generator) GenerateRandomString(length int) string {
 	// setting a random seed
 	rand.Seed(time.Now().UnixNano())
 
