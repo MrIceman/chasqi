@@ -1,6 +1,7 @@
 package processor
 
 import (
+	"strings"
 	"testing"
 )
 
@@ -31,5 +32,18 @@ func TestShouldReplaceStringWithMultipleRandoms(t *testing.T) {
 	println(result)
 	if len(result) != 3+1+150+4 {
 		t.Error("Generated string doesn't have 3 chars")
+	}
+}
+
+func TestShouldContainInfixString(t *testing.T) {
+	str := "random::{1200}infixrandom::{150}"
+
+	result := ReplaceRandomsInString(str)
+
+	if !strings.Contains(result, "infix") {
+		t.Error("Infix \"infix\" is not contained")
+	}
+	if len(result) != 1355 {
+		t.Error("Result should contain 1355 chars")
 	}
 }
