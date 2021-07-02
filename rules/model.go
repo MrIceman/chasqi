@@ -3,10 +3,10 @@ package rules
 import "fmt"
 
 type NavigationTree struct {
-	Host           string     `yaml:"host"`
-	AmountOfAgents int        `yaml:"agents"`
-	Nodes          []Node     `yaml:"nodes"`
-	Variables      []Variable `yaml:"variables"`
+	Host           string      `yaml:"host"`
+	AmountOfAgents int         `yaml:"agents"`
+	Nodes          []Node      `yaml:"nodes"`
+	Variables      []*Variable `yaml:"variables"`
 }
 
 type Variable struct {
