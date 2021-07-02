@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
@@ -80,6 +81,9 @@ func (a *Agent) sendDebugMessage(mesage string) {
 
 // The agent starts his route
 func (a *Agent) Start() {
+	rand.Seed(time.Now().UnixNano())
+	randInt := rand.Intn(3)
+	time.Sleep(time.Duration(randInt+1) * time.Second)
 	a.sendDebugMessage("starting")
 	currentRoute := &a.rootRoute
 	for currentRoute != nil {

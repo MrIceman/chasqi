@@ -8,9 +8,9 @@ import (
 type Scheduler struct {
 	navigationTree  rules.NavigationTree
 	amountOfAgents  int
-	agents          []agent.Agent
-	completedAgents []agent.Agent
-	failedAgents    []agent.Agent
+	agents          []*agent.Agent
+	completedAgents []*agent.Agent
+	failedAgents    []*agent.Agent
 }
 
 func NewScheduler(tree *rules.NavigationTree) *Scheduler {
@@ -21,8 +21,9 @@ func NewScheduler(tree *rules.NavigationTree) *Scheduler {
 }
 
 func (s *Scheduler) Start() {
-	// TODO iterate through scheduler and start all agents
-	go s.agents[0].Start()
+	for _, a := range s.agents {
+		go a.Start()
+	}
 }
 
 /**
@@ -32,7 +33,7 @@ them
 func (s *Scheduler) Schedule(
 	debugChannel chan string,
 ) {
-	agentList := make([]agent.Agent, s.navigationTree.AmountOfAgents)
+	agentList := make([]*agent.Agent, s.navigationTree.AmountOfAgents)
 	for i := 0; i < s.amountOfAgents; i++ {
 		a := new(agent.Agent)
 		a.Init(
@@ -40,7 +41,7 @@ func (s *Scheduler) Schedule(
 			debugChannel,
 			i,
 		)
-		agentList[i] = *a
+		agentList[i] = a
 	}
 	s.agents = agentList
 }
