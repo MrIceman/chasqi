@@ -1,4 +1,4 @@
-package processor
+package agent
 
 import (
 	"chasqi/processor/random"
@@ -21,5 +21,5 @@ func ReplaceRandomsInString(raw string) string {
 		}
 		newString = strings.Replace(newString, v[0], generator.GenerateRandomString(parsedIntValue), -1)
 	}
-	return newString
+	return strings.ToLower(newString)
 }

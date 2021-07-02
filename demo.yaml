@@ -8,7 +8,7 @@ variables:
     value: "random::{8}"
     dt: "str"
   - name: "role"
-    value: 2
+    value: 1
     dt: "int"
 
 nodes:

@@ -7,19 +7,21 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 	"time"
 )
 
 type Agent struct {
-	identifier           int
-	alreadyVisitedRoutes map[string]string
-	exposedResponses     map[string]map[string]string
-	inputValues          map[string]interface{}
-	rootRoute            Route
-	sleepTimeInSeconds   int
-	host                 string
-	debugChannel         chan string
-	client               http.Client
+	identifier              int
+	alreadyVisitedRoutes    map[string]string
+	exposedResponses        map[string]map[string]string
+	inputValues             map[string]interface{}
+	rootRoute               Route
+	sleepTimeInSeconds      int
+	host                    string
+	debugChannel            chan string
+	client                  http.Client
+	lastExecutedRequestBody map[string]interface{}
 }
 
 func New(sleepTimeInSeconds int) Agent {
@@ -43,7 +45,11 @@ func (a *Agent) Init(tree rules.NavigationTree,
 	// Pass a copy of the configured variables to the agent
 	for _, item := range tree.Variables {
 		if item.Type == "str" {
-			inputMap[item.Name] = item.Value
+			if strings.Contains(item.Value, "random::") {
+				inputMap[item.Name] = ReplaceRandomsInString(item.Value)
+			} else {
+				inputMap[item.Name] = item.Value
+			}
 		} else if item.Type == "int" {
 			intValue, err := strconv.Atoi(item.Value)
 			if err != nil {
@@ -88,6 +94,7 @@ func (a *Agent) Start() {
 		currentRoute = currentRoute.next
 
 		_ = resp.Body.Close()
+		time.Sleep(2 * time.Second)
 	}
 
 }
@@ -127,7 +134,7 @@ func (a *Agent) processMultiValueResponse(data []byte, r *Route) {
 	var resultBody []map[string]interface{}
 	err := json.Unmarshal(data, &resultBody)
 	if err != nil {
-		panic(err)
+		a.sendDebugMessage("Could not parse response: " + err.Error())
 	}
 }
 
@@ -143,6 +150,7 @@ func (a *Agent) callRoute(route *Route) *http.Response {
 		if err != nil {
 			panic(err)
 		}
+		a.lastExecutedRequestBody = bodyMap
 		req = a.makePostOrPutRequest(
 			method,
 			route,
@@ -164,7 +172,6 @@ func (a *Agent) callRoute(route *Route) *http.Response {
 	}
 	a.sendDebugMessage(strconv.Itoa(response.StatusCode) +
 		" - " + route.method + " " + route.name + "  / " +
-		strconv.Itoa(int(endTime.Sub(startTime).Milliseconds())) + " ms")
-
+		strconv.Itoa(int(endTime.Sub(startTime).Milliseconds())) + " ms" + " - ")
 	return response
 }
