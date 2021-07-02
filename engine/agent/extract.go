@@ -34,7 +34,6 @@ func (a *Agent) extractBody(route *Route) (map[string]interface{}, error) {
 
 	for k, v := range route.body {
 		values := strings.Split(fmt.Sprint(v), "::")
-		println(fmt.Sprint(values))
 		if len(values) > 1 {
 			// TODO handle exceptions
 			isVariable := values[0] == "variables"

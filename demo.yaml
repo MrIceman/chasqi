@@ -1,5 +1,5 @@
 host: "http://www.loremio.com"
-agents: 10
+agents: 100
 variables:
   - name: "email"
     value: "random::{6}@random::{8}.de"
@@ -10,6 +10,9 @@ variables:
   - name: "role"
     value: 1
     dt: "int"
+  - name: "push_token"
+    value: "random::{32}"
+    dt: "str"
 
 nodes:
   - name: "create_account"
@@ -41,6 +44,15 @@ nodes:
       Content-Type: "application/json"
       Authorization: "login::access"
 
+  - name: "update_firebase_token"
+    path: "/profile/"
+    method: "PUT"
+    body:
+      push_token: "variables::push_token"
+    header:
+      Content-Type: "application/json"
+      Authorization: "login::access"
+
   - name: "get_subscription"
     path: "/subscription/"
     method: "GET"
@@ -49,10 +61,26 @@ nodes:
       Content-Type: "application/json"
       Authorization: "login::access"
 
+  - name: "subscribe_to_vendor"
+    path: "/subscription/"
+    method: "POST"
+    body:
+      vendor: "1"
+    header:
+      Content-Type: "application/json"
+      Authorization: "login::access"
+
   - name: "get_push_messages_for_vendor"
     path: "/push/?vendor=1"
     method: "GET"
     returns_array: true
+    header:
+      Content-Type: "application/json"
+      Authorization: "login::access"
+
+  - name: "get_product_detail_id_1"
+    path: "/product/?id=4"
+    method: "GET"
     header:
       Content-Type: "application/json"
       Authorization: "login::access"
