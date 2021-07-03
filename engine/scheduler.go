@@ -2,6 +2,7 @@ package engine
 
 import (
 	"chasqi/engine/agent"
+	"chasqi/engine/analytics"
 	"chasqi/rules"
 )
 
@@ -32,6 +33,7 @@ them
 */
 func (s *Scheduler) Schedule(
 	debugChannel chan string,
+	logChannel chan analytics.LogEntry,
 ) {
 	agentList := make([]*agent.Agent, s.navigationTree.AmountOfAgents)
 	for i := 0; i < s.amountOfAgents; i++ {
@@ -39,6 +41,7 @@ func (s *Scheduler) Schedule(
 		a.Init(
 			s.navigationTree,
 			debugChannel,
+			logChannel,
 			i,
 		)
 		agentList[i] = a

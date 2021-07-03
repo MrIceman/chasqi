@@ -1,6 +1,7 @@
 package agent
 
 import (
+	"chasqi/engine/analytics"
 	"chasqi/rules"
 	"encoding/json"
 	"fmt"
@@ -21,6 +22,7 @@ type Agent struct {
 	sleepTimeInSeconds      int
 	host                    string
 	debugChannel            chan string
+	logChannel              chan analytics.LogEntry
 	client                  http.Client
 	lastExecutedRequestBody map[string]interface{}
 }
@@ -37,11 +39,14 @@ func (a *Agent) Identifier() int {
 
 func (a *Agent) Init(tree rules.NavigationTree,
 	debugChannel chan string,
+	logChannel chan analytics.LogEntry,
 	identifier int,
 ) {
 	a.rootRoute = *nodesToRoute(tree.Nodes)
+	a.logChannel = logChannel
 	a.host = tree.Host
 	a.debugChannel = debugChannel
+
 	inputMap := make(map[string]interface{})
 	// Pass a copy of the configured variables to the agent
 	for _, item := range tree.Variables {
@@ -174,8 +179,17 @@ func (a *Agent) callRoute(route *Route) *http.Response {
 	if err != nil {
 		panic(err)
 	}
+	durationTimeInMs := int(endTime.Sub(startTime).Milliseconds())
 	a.sendDebugMessage(strconv.Itoa(response.StatusCode) +
 		" - " + route.method + " " + route.name + "  / " +
-		strconv.Itoa(int(endTime.Sub(startTime).Milliseconds())) + " ms" + " - ")
+		strconv.Itoa(durationTimeInMs) + " ms" + " - ")
+
+	a.logChannel <- analytics.LogEntry{
+		response.StatusCode,
+		route.name,
+		durationTimeInMs,
+		nil,
+		route.method,
+	}
 	return response
 }
